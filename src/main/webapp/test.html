@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iron Lady AI Assistant</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 380px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #6a1b9a;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            font-size: 14px;
+        }
+
+        .user {
+            background: #e1bee7;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #ede7f6;
+            align-self: flex-start;
+        }
+
+        .typing {
+            font-style: italic;
+            font-size: 12px;
+            color: gray;
+            margin-left: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            border: none;
+            background: #6a1b9a;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background: #4a148c;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">Iron Lady AI Assistant</div>
+
+    <div id="chatBox" class="chat-box"></div>
+
+    <div class="chat-input">
+        <input type="text" id="msg" placeholder="Ask about programs, career, guidance..." />
+        <button onclick="send()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+
+    function addMessage(text, type) {
+        const div = document.createElement("div");
+        div.className = "message " + type;
+        div.innerText = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function send() {
+        const input = document.getElementById("msg");
+        const message = input.value.trim();
+        if (message === "") return;
+
+        addMessage(message, "user");
+        input.value = "";
+
+        const typing = document.createElement("div");
+        typing.className = "typing";
+        typing.innerText = "Iron Lady AI is typing...";
+        chatBox.appendChild(typing);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        fetch("/IronLadyAI/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message })
+        })
+        .then(res => res.json())
+        .then(data => {
+            chatBox.removeChild(typing);
+            addMessage(data.reply, "bot");
+        })
+        .catch(() => {
+            chatBox.removeChild(typing);
+            addMessage("Sorry, something went wrong. Please try again.", "bot");
+        });
+    }
+</script>
+
+</body>
+</html>
